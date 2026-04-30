@@ -2,15 +2,20 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2 } from 'lucide-react';
 
-export default function Hero() {
+export default function Hero({ shakeTrigger }: { shakeTrigger: number }) {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorStatus, setErrorStatus] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setErrorStatus('Please enter a valid email');
+      return;
+    }
 
+    setErrorStatus(null);
     setIsSubmitting(true);
     try {
       const response = await fetch('/api/waitlist', {
@@ -21,12 +26,20 @@ export default function Hero() {
       
       if (response.ok) {
         setIsSubmitted(true);
+      } else {
+        setErrorStatus('Something went wrong. Please try again.');
       }
     } catch (error) {
       console.error('Signup error:', error);
+      setErrorStatus('Network error. Check your connection.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const shakeAnimation = {
+    x: [0, -10, 10, -10, 10, 0],
+    transition: { duration: 0.4 }
   };
 
   return (
@@ -48,31 +61,37 @@ export default function Hero() {
           <div className="max-w-lg mx-auto lg:mx-0">
             <AnimatePresence mode="wait">
               {!isSubmitted ? (
-                <motion.form 
-                  key="form"
-                  initial={{ opacity: 1 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="flex flex-col sm:flex-row gap-4" 
-                  onSubmit={handleSubmit}
+                <motion.div 
+                  key="form-container"
+                  animate={shakeTrigger > 0 ? shakeAnimation : {}}
                 >
-                  <input 
-                    type="email" 
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email" 
-                    className="flex-1 px-6 py-4 rounded-xl border border-outline-variant bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all text-on-surface"
-                  />
-                  <motion.button 
-                    type="submit"
-                    disabled={isSubmitting}
-                    whileHover={{ y: -2, shadow: "0 10px 25px -5px rgba(245, 166, 35, 0.4)" }}
-                    whileTap={{ scale: 0.98 }}
-                    className="bg-gold text-primary-container font-bold px-8 py-4 rounded-xl shadow-ambient transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
+                  <form 
+                    key="form"
+                    className="flex flex-col sm:flex-row gap-4" 
+                    onSubmit={handleSubmit}
                   >
-                    {isSubmitting ? 'Joining...' : 'Join the Waitlist'}
-                  </motion.button>
-                </motion.form>
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email" 
+                      className={`flex-1 px-6 py-4 rounded-xl border ${errorStatus ? 'border-red-500 ring-1 ring-red-500' : 'border-outline-variant'} bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary-container transition-all text-on-surface`}
+                    />
+                    <motion.button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      whileHover={{ y: -2, shadow: "0 10px 25px -5px rgba(245, 166, 35, 0.4)" }}
+                      whileTap={{ scale: 0.98 }}
+                      className="bg-gold text-primary-container font-bold px-8 py-4 rounded-xl shadow-ambient transition-all whitespace-nowrap disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? 'Joining...' : 'Join the Waitlist'}
+                    </motion.button>
+                  </form>
+                  {errorStatus && (
+                    <p className="text-red-500 text-sm mt-2 font-medium">{errorStatus}</p>
+                  )}
+                </motion.div>
               ) : (
                 <motion.div 
                   key="success"

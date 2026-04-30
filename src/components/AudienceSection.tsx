@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 
-export default function AudienceSection() {
+export default function AudienceSection({ onAction }: { onAction: () => void }) {
   return (
     <section className="bg-primary-container text-white py-24 px-6 relative overflow-hidden">
       {/* Decorative gradient overlay */}
@@ -37,6 +37,7 @@ export default function AudienceSection() {
           <motion.button 
             whileHover={{ scale: 1.05, backgroundColor: "#E49615" }}
             whileTap={{ scale: 0.95 }}
+            onClick={onAction}
             className="bg-gold text-primary-container font-bold px-10 py-5 rounded-xl shadow-lg text-lg transition-all"
           >
             Secure Your Spot Early

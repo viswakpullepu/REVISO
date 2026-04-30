@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 
-export default function Navbar() {
+export default function Navbar({ onPreRegister }: { onPreRegister: () => void }) {
   return (
     <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-outline-variant/30">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -14,6 +14,7 @@ export default function Navbar() {
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={onPreRegister}
             className="bg-gold text-primary-container font-semibold px-6 py-2 rounded-lg text-sm shadow-sm hover:shadow-ambient transition-all"
           >
             Pre-register
