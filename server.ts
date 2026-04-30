@@ -1,7 +1,7 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
-import fs from "fs";
+import { createClient } from "@supabase/supabase-js";
 
 async function startServer() {
   const app = express();
@@ -9,22 +9,48 @@ async function startServer() {
 
   app.use(express.json());
 
-  // In-memory "database" for the demo
-  let waitlist: { email: string; timestamp: string }[] = [];
+  // Initialize Supabase (Lazy load if keys are missing to prevent crash)
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  let supabase: any = null;
+  if (supabaseUrl && supabaseKey) {
+    supabase = createClient(supabaseUrl, supabaseKey);
+    console.log("Supabase client initialized");
+  }
 
   // API Routes
-  app.post("/api/waitlist", (req, res) => {
+  app.post("/api/waitlist", async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email is required" });
     
-    waitlist.push({ email, timestamp: new Date().toISOString() });
-    console.log(`New registration: ${email}`);
+    if (supabase) {
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([{ email, created_at: new Date().toISOString() }]);
+      
+      if (error) {
+        console.error("Supabase Error:", error);
+        return res.status(500).json({ error: "Database error" });
+      }
+    } else {
+      console.log(`[Demo Mode] Registration: ${email}`);
+    }
+    
     res.json({ success: true });
   });
 
-  app.get("/api/admin/waitlist", (req, res) => {
-    // In a real app, you'd add authentication here
-    res.json(waitlist);
+  app.get("/api/admin/waitlist", async (req, res) => {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('waitlist')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) return res.status(500).json({ error: "Database error" });
+      return res.json(data || []);
+    }
+    res.json([]);
   });
 
   // Vite middleware for development

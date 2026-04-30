@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Users, Mail, Clock } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const [list, setList] = useState<{ email: string; timestamp: string }[]>([]);
+  const [list, setList] = useState<{ email: string; created_at?: string; timestamp?: string }[]>([]);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-on-surface-variant">
                     <Clock className="w-3 h-3" />
-                    {new Date(item.timestamp).toLocaleString()}
+                    {new Date(item.created_at || item.timestamp).toLocaleString()}
                   </div>
                 </div>
               ))}
@@ -74,7 +74,7 @@ export default function AdminDashboard() {
         </div>
         
         <div className="p-4 bg-primary-container text-white text-center text-xs font-medium">
-          PRO TIP: In a production app, this list would be in a persistent database.
+          Connected to Supabase. Registrations are persistent.
         </div>
       </motion.div>
     </div>
