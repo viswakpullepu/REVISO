@@ -51,15 +51,15 @@ export default function Hero({ shakeTrigger }: { shakeTrigger: number }) {
         triggerConfetti();
       } else {
         let errorMessage = 'Something went wrong. Please try again.';
+        const responseText = await response.text();
+        
         try {
-          const data = await response.json();
+          const data = JSON.parse(responseText);
           errorMessage = data.error || errorMessage;
           console.error('Server error JSON:', data);
         } catch (e) {
-          // If response is not JSON, get the text (might be an HTML error page)
-          const text = await response.text();
-          console.error('Server returned non-JSON error:', text);
-          errorMessage = `Server Error (${response.status}): ${text.substring(0, 50)}...`;
+          console.error('Server returned non-JSON error:', responseText);
+          errorMessage = `Server Error (${response.status}): ${responseText.substring(0, 100)}`;
         }
         setErrorStatus(errorMessage);
       }

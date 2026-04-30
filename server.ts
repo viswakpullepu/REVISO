@@ -53,16 +53,21 @@ async function startServer() {
           // 42P01: Table missing
           if (error.code === '42P01') {
             return res.status(500).json({ 
-              error: "Database table 'waitlist' not found. Please create it in your Supabase dashboard." 
+              error: "Database table 'waitlist' not found. Please create it in your Supabase dashboard.",
+              code: error.code
             });
           }
           // 23505: Unique violation (Email already registered)
           if (error.code === '23505') {
             return res.status(400).json({ 
-              error: "This email is already on the waitlist!" 
+              error: "This email is already on the waitlist!",
+              code: error.code
             });
           }
-          return res.status(500).json({ error: error.message || "Database error" });
+          return res.status(500).json({ 
+            error: error.message || "Database error",
+            code: error.code 
+          });
         }
         console.log("Supabase insertion successful");
       } else {
