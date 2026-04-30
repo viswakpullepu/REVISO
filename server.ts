@@ -24,8 +24,10 @@ export async function createApp() {
     }
   }
 
-  // API Routes
-  app.post("/api/waitlist", async (req, res) => {
+  // API Routes - Using a router or flexible paths to avoid 404s in different environments
+  const api = express.Router();
+
+  api.post("/waitlist", async (req, res) => {
     try {
       const { email } = req.body;
       if (!email) return res.status(400).json({ error: "Email is required" });
@@ -33,37 +35,45 @@ export async function createApp() {
       if (supabase) {
         const { error } = await supabase.from('waitlist').insert([{ email, created_at: new Date().toISOString() }]);
         if (error) {
+          console.error("Supabase Error:", error);
           return res.status(error.code === '23505' ? 400 : 500).json({ 
-            error: error.code === '23505' ? "Already on the list!" : error.message,
+            error: error.code === '23505' ? "Already on the list!" : (error.message || "Database write failed"),
             code: error.code 
           });
         }
+      } else {
+        console.log("Demo Mode: email captured:", email);
       }
       res.json({ success: true });
     } catch (err: any) {
+      console.error("Waitlist API Error:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
 
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", supabase: !!supabase });
+  api.get("/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      supabase: !!supabase,
+      time: new Date().toISOString()
+    });
   });
+
+  app.use("/api", api);
 
   // Vite placement logic
   if (process.env.NODE_ENV !== "production") {
-    // Only import vite in development
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    // In production (like Vercel), serve static files from dist
+  } else if (!process.env.VERCEL) {
+    // Traditional production (not Vercel)
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
-      // Check if file exists, if not serve index.html for SPA
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
