@@ -2,6 +2,9 @@ import express from "express";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function startServer() {
   const app = express();
@@ -15,22 +18,29 @@ async function startServer() {
   
   let supabase: any = null;
   // Only initialize if keys are present and doesn't contain placeholders
-  if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
+  if (supabaseUrl && supabaseKey && supabaseUrl.startsWith('http') && !supabaseUrl.includes('your-project')) {
     try {
       supabase = createClient(supabaseUrl, supabaseKey);
-      console.log("Supabase client initialized");
+      console.log("Supabase client initialized with URL:", supabaseUrl);
     } catch (err) {
       console.error("Failed to initialize Supabase client:", err);
     }
+  } else {
+    console.log("Supabase credentials missing or invalid. Running in Demo Mode.");
   }
 
   // API Routes
   app.post("/api/waitlist", async (req, res) => {
+    console.log("POST /api/waitlist request received");
     try {
       const { email } = req.body;
-      if (!email) return res.status(400).json({ error: "Email is required" });
+      if (!email) {
+        console.log("Registration failed: Missing email");
+        return res.status(400).json({ error: "Email is required" });
+      }
       
       if (supabase) {
+        console.log("Attempting Supabase insertion for:", email);
         const { error } = await supabase
           .from('waitlist')
           .insert([{ email, created_at: new Date().toISOString() }]);
@@ -51,13 +61,14 @@ async function startServer() {
           }
           return res.status(500).json({ error: error.message || "Database error" });
         }
+        console.log("Supabase insertion successful");
       } else {
-        console.log(`[Demo Mode] Registration: ${email}`);
+        console.log(`[Demo Mode] Registration recorded for: ${email}`);
       }
       
       res.json({ success: true });
     } catch (err: any) {
-      console.error("Server Error:", err);
+      console.error("Unexpected Server Error:", err);
       res.status(500).json({ error: err.message || "Internal server error" });
     }
   });

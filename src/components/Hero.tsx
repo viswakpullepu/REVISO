@@ -27,12 +27,13 @@ export default function Hero({ shakeTrigger }: { shakeTrigger: number }) {
       if (response.ok) {
         setIsSubmitted(true);
       } else {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({ error: 'Unknown server error' }));
         setErrorStatus(data.error || 'Something went wrong. Please try again.');
+        console.error('Server error response:', response.status, data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Signup error:', error);
-      setErrorStatus('Network error. Check your connection.');
+      setErrorStatus(`Network error: ${error.message || 'Check your connection'}`);
     } finally {
       setIsSubmitting(false);
     }
