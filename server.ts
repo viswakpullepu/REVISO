@@ -6,10 +6,8 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-async function startServer() {
+export async function createApp() {
   const app = express();
-  const PORT = 3000;
-
   app.use(express.json());
 
   // Initialize Supabase (Lazy load if keys are missing to prevent crash)
@@ -50,14 +48,12 @@ async function startServer() {
         
         if (error) {
           console.error("Supabase Insertion Error:", error);
-          // 42P01: Table missing
           if (error.code === '42P01') {
             return res.status(500).json({ 
               error: "Database table 'waitlist' not found. Please create it in your Supabase dashboard.",
               code: error.code
             });
           }
-          // 23505: Unique violation (Email already registered)
           if (error.code === '23505') {
             return res.status(400).json({ 
               error: "This email is already on the waitlist!",
@@ -101,7 +97,6 @@ async function startServer() {
     }
   });
 
-  // Health check route
   app.get("/api/health", (req, res) => {
     res.json({ 
       status: "ok", 
@@ -128,6 +123,8 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
+    // Note: In production on Vercel, this part is usually handled by Vercel configuration
+    // but we keep it here for traditional production hosting.
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
@@ -135,9 +132,15 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  return app;
 }
 
-startServer();
+// Start server if not in Vercel or if explicitly running locally
+if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
+  createApp().then(app => {
+    const PORT = parseInt(process.env.PORT || "3000", 10);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  });
+}
