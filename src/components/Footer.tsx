@@ -7,8 +7,8 @@ export default function Footer() {
           <p className="text-blue-200/60 text-sm leading-relaxed">
             Revolutionizing academic success through the science of spaced repetition. Built for the modern student.
           </p>
-          <p className="text-blue-200/40 text-xs">
-            © 2024 Reviso. Master your memory.
+          <p className="text-blue-200/30 text-xs tracking-tight">
+            © {new Date().getFullYear()} Reviso. Master your memory.
           </p>
         </div>
 
