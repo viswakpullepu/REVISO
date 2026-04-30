@@ -27,7 +27,8 @@ export default function Hero({ shakeTrigger }: { shakeTrigger: number }) {
       if (response.ok) {
         setIsSubmitted(true);
       } else {
-        setErrorStatus('Something went wrong. Please try again.');
+        const data = await response.json();
+        setErrorStatus(data.error || 'Something went wrong. Please try again.');
       }
     } catch (error) {
       console.error('Signup error:', error);

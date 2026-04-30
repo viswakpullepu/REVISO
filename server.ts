@@ -14,43 +14,72 @@ async function startServer() {
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   let supabase: any = null;
-  if (supabaseUrl && supabaseKey) {
-    supabase = createClient(supabaseUrl, supabaseKey);
-    console.log("Supabase client initialized");
+  // Only initialize if keys are present and doesn't contain placeholders
+  if (supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project')) {
+    try {
+      supabase = createClient(supabaseUrl, supabaseKey);
+      console.log("Supabase client initialized");
+    } catch (err) {
+      console.error("Failed to initialize Supabase client:", err);
+    }
   }
 
   // API Routes
   app.post("/api/waitlist", async (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: "Email is required" });
-    
-    if (supabase) {
-      const { error } = await supabase
-        .from('waitlist')
-        .insert([{ email, created_at: new Date().toISOString() }]);
+    try {
+      const { email } = req.body;
+      if (!email) return res.status(400).json({ error: "Email is required" });
       
-      if (error) {
-        console.error("Supabase Error:", error);
-        return res.status(500).json({ error: "Database error" });
+      if (supabase) {
+        const { error } = await supabase
+          .from('waitlist')
+          .insert([{ email, created_at: new Date().toISOString() }]);
+        
+        if (error) {
+          console.error("Supabase Insertion Error:", error);
+          // 42P01: Table missing
+          if (error.code === '42P01') {
+            return res.status(500).json({ 
+              error: "Database table 'waitlist' not found. Please create it in your Supabase dashboard." 
+            });
+          }
+          // 23505: Unique violation (Email already registered)
+          if (error.code === '23505') {
+            return res.status(400).json({ 
+              error: "This email is already on the waitlist!" 
+            });
+          }
+          return res.status(500).json({ error: error.message || "Database error" });
+        }
+      } else {
+        console.log(`[Demo Mode] Registration: ${email}`);
       }
-    } else {
-      console.log(`[Demo Mode] Registration: ${email}`);
+      
+      res.json({ success: true });
+    } catch (err: any) {
+      console.error("Server Error:", err);
+      res.status(500).json({ error: err.message || "Internal server error" });
     }
-    
-    res.json({ success: true });
   });
 
   app.get("/api/admin/waitlist", async (req, res) => {
-    if (supabase) {
-      const { data, error } = await supabase
-        .from('waitlist')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) return res.status(500).json({ error: "Database error" });
-      return res.json(data || []);
+    try {
+      if (supabase) {
+        const { data, error } = await supabase
+          .from('waitlist')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) {
+          console.error("Supabase Fetch Error:", error);
+          return res.status(500).json({ error: error.message || "Database error" });
+        }
+        return res.json(data || []);
+      }
+      res.json([]);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Internal server error" });
     }
-    res.json([]);
   });
 
   // Vite middleware for development
