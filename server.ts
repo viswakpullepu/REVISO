@@ -96,6 +96,25 @@ async function startServer() {
     }
   });
 
+  // Health check route
+  app.get("/api/health", (req, res) => {
+    res.json({ 
+      status: "ok", 
+      supabase: !!supabase,
+      env: process.env.NODE_ENV
+    });
+  });
+
+  // Global Error Handler
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error("GLOBAL SERVER ERROR:", err);
+    res.status(500).json({ 
+      error: "Critical server error", 
+      message: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

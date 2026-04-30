@@ -50,12 +50,21 @@ export default function Hero({ shakeTrigger }: { shakeTrigger: number }) {
         setIsSubmitted(true);
         triggerConfetti();
       } else {
-        const data = await response.json().catch(() => ({ error: 'Unknown server error' }));
-        setErrorStatus(data.error || 'Something went wrong. Please try again.');
-        console.error('Server error response:', response.status, data);
+        let errorMessage = 'Something went wrong. Please try again.';
+        try {
+          const data = await response.json();
+          errorMessage = data.error || errorMessage;
+          console.error('Server error JSON:', data);
+        } catch (e) {
+          // If response is not JSON, get the text (might be an HTML error page)
+          const text = await response.text();
+          console.error('Server returned non-JSON error:', text);
+          errorMessage = `Server Error (${response.status}): ${text.substring(0, 50)}...`;
+        }
+        setErrorStatus(errorMessage);
       }
     } catch (error: any) {
-      console.error('Signup error:', error);
+      console.error('Signup network error:', error);
       setErrorStatus(`Network error: ${error.message || 'Check your connection'}`);
     } finally {
       setIsSubmitting(false);
