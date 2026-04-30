@@ -13,20 +13,23 @@ async function startServer() {
   app.use(express.json());
 
   // Initialize Supabase (Lazy load if keys are missing to prevent crash)
-  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseUrlRaw = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   let supabase: any = null;
   // Only initialize if keys are present and doesn't contain placeholders
-  if (supabaseUrl && supabaseKey && supabaseUrl.startsWith('http') && !supabaseUrl.includes('your-project')) {
+  if (supabaseUrlRaw && supabaseKey && supabaseUrlRaw.startsWith('http') && !supabaseUrlRaw.includes('your-project')) {
     try {
+      // Normalize URL: remove trailing slash and ensure no /rest/v1 suffix which some users mistakenly add
+      const supabaseUrl = supabaseUrlRaw.trim().replace(/\/$/, "").replace(/\/rest\/v1$/, "");
       supabase = createClient(supabaseUrl, supabaseKey);
-      console.log("Supabase client initialized with URL:", supabaseUrl);
+      console.log("Supabase client successfully initialized with URL:", supabaseUrl);
     } catch (err) {
-      console.error("Failed to initialize Supabase client:", err);
+      console.error("Failed to initialize Supabase client constructor:", err);
     }
   } else {
-    console.log("Supabase credentials missing or invalid. Running in Demo Mode.");
+    console.log("Supabase credentials missing, malformed, or using placeholders. Running in Demo Mode.");
+    if (supabaseUrlRaw) console.log("Current URL value starts with:", supabaseUrlRaw.substring(0, 10));
   }
 
   // API Routes

@@ -49,8 +49,8 @@ export default function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: false, amount: 0.2 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
-            whileHover={{ y: -8 }}
-            className="group bg-white p-8 rounded-2xl border border-outline-variant/30 shadow-ambient hover:shadow-lift transition-all"
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="group bg-white p-8 rounded-2xl border border-outline-variant/30 shadow-ambient hover:shadow-lift transition-all duration-300 ease-out"
           >
             <div className={`w-12 h-12 ${feature.color} text-primary-container rounded-xl flex items-center justify-center mb-6`}>
               {feature.icon}

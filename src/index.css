@@ -19,7 +19,7 @@
   --radius-xl: 1.5rem;
 
   --shadow-ambient: 0 4px 16px rgba(15, 31, 92, 0.08);
-  --shadow-lift: 0 8px 24px rgba(15, 31, 92, 0.12);
+  --shadow-lift: 0 12px 32px rgba(15, 31, 92, 0.16);
 }
 
 @layer base {
