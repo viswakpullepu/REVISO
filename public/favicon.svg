@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Background -->
+  <rect width="64" height="64" rx="14" fill="#0F1F5C"/>
+  <!-- Gold "R" — geometric, bold -->
+  <text
+    x="32"
+    y="46"
+    font-family="'Public Sans', 'Inter', Arial, sans-serif"
+    font-size="42"
+    font-weight="800"
+    text-anchor="middle"
+    fill="#F5A623"
+    letter-spacing="-1"
+  >R</text>
+</svg>
