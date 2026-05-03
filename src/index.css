@@ -4,22 +4,16 @@
 @theme {
   --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
   
-  --color-primary: #000a3a;
-  --color-primary-container: #0f1f5c;
+  --color-primary: #0F1F5C;
+  --color-primary-mid: #1E3A80;
   --color-gold: #F5A623;
-  --color-surface: #f7f9fb;
-  --color-on-surface: #191c1e;
-  --color-on-surface-variant: #454650;
-  --color-outline-variant: #c6c5d1;
-  --color-surface-container: #eceef0;
-  --color-surface-container-low: #f2f4f6;
-  --color-surface-container-lowest: #ffffff;
+  --color-white: #FFFFFF;
   
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  --radius-xl: 20px;
+  --radius-lg: 14px;
 
-  --shadow-ambient: 0 4px 16px rgba(15, 31, 92, 0.08);
-  --shadow-lift: 0 12px 32px rgba(15, 31, 92, 0.16);
+  --shadow-premium: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --shadow-gold-glow: 0 0 20px rgba(245, 166, 35, 0.4);
 }
 
 @layer base {
@@ -27,6 +21,35 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-surface text-on-surface font-sans antialiased;
+    @apply bg-primary text-white font-sans antialiased;
+    background-image: linear-gradient(135deg, #0F1F5C, #1E3A80);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-white tracking-tight;
+  }
+
+  p {
+    @apply text-white/70 leading-relaxed;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gold text-primary font-bold px-8 py-4 rounded-lg shadow-gold-glow transition-all duration-300 inline-flex items-center justify-center;
+  }
+  
+  .btn-primary:hover {
+    @apply scale-[1.03] brightness-110;
+  }
+
+  .card-premium {
+    @apply bg-primary-mid rounded-xl p-8 shadow-premium border border-white/5 transition-all duration-300;
+  }
+  
+  .text-gold {
+    @apply text-gold;
   }
 }

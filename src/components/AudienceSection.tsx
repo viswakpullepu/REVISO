@@ -2,43 +2,68 @@ import { motion } from 'motion/react';
 
 export default function AudienceSection({ onAction }: { onAction: () => void }) {
   return (
-    <section className="bg-primary-container text-white py-24 px-6 relative overflow-hidden">
-      {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-gold via-primary-container to-primary-container"></div>
-      
+    <section
+      className="relative py-28 px-6 overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #1E3A80, #0F1F5C)' }}
+    >
+      {/* Subtle radial glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(ellipse at top right, rgba(245,166,35,0.08) 0%, transparent 60%)',
+        }}
+      />
+
+      {/* Top divider */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-white/8" />
+      {/* Bottom divider */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-white/8" />
+
       <div className="max-w-4xl mx-auto text-center relative z-10 space-y-10">
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, amount: 0.5 }}
           transition={{ duration: 0.4 }}
-          className="text-4xl lg:text-5xl font-bold font-sans"
+          className="text-4xl lg:text-5xl font-bold text-white"
         >
-          Built for Serious Aspirants
+          Built for <span style={{ color: '#F5A623' }}>Serious Aspirants</span>
         </motion.h2>
 
-        <div className="flex flex-wrap justify-center gap-4">
-          <span className="px-5 py-2 rounded-full bg-white/10 text-sm font-semibold border border-white/20">Competitive Exams</span>
-          <span className="px-5 py-2 rounded-full bg-white/10 text-sm font-semibold border border-white/20">Major Entrance Exams</span>
-          <span className="px-5 py-2 rounded-full bg-white/10 text-sm font-semibold border border-white/20">Executive Learning</span>
+        {/* Audience tags */}
+        <div className="flex flex-wrap justify-center gap-3">
+          {['Competitive Exams', 'Major Entrance Exams', 'Executive Learning'].map((tag) => (
+            <span
+              key={tag}
+              className="px-5 py-2 rounded-full text-sm font-semibold text-white border border-white/15 bg-white/5 backdrop-blur-sm"
+            >
+              {tag}
+            </span>
+          ))}
         </div>
 
-        <motion.p 
-          initial={{ opacity: 0, scale: 0.95 }}
+        {/* Quote */}
+        <motion.p
+          initial={{ opacity: 0, scale: 0.96 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: false, amount: 0.5 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="text-xl lg:text-2xl text-blue-200/90 font-medium italic leading-relaxed"
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="text-xl lg:text-2xl text-white/60 font-medium italic leading-relaxed max-w-3xl mx-auto"
         >
-          "The anxiety of forgetting weeks of hard work right before the exam is overwhelming. Reviso acts as a trusted senior, structuring your revision so you walk into the exam hall knowing exactly what you've retained."
+          "The anxiety of forgetting weeks of hard work right before the exam is overwhelming.
+          Reviso acts as a trusted senior, structuring your revision so you walk into the exam
+          hall knowing exactly what you've retained."
         </motion.p>
 
-        <div className="pt-8">
-          <motion.button 
-            whileHover={{ scale: 1.05, backgroundColor: "#E49615" }}
-            whileTap={{ scale: 0.95 }}
+        {/* CTA */}
+        <div className="pt-4">
+          <motion.button
+            whileHover={{ scale: 1.04, boxShadow: '0 0 32px rgba(245,166,35,0.6)' }}
+            whileTap={{ scale: 0.96 }}
             onClick={onAction}
-            className="bg-gold text-primary-container font-bold px-10 py-5 rounded-xl shadow-lg text-lg transition-all"
+            className="bg-gold text-primary font-bold px-10 py-5 rounded-xl text-lg transition-all"
+            style={{ boxShadow: '0 0 20px rgba(245,166,35,0.4)' }}
           >
             Secure Your Spot Early
           </motion.button>
